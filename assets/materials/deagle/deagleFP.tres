@@ -1,0 +1,31 @@
+[gd_resource type="ShaderMaterial" load_steps=7 format=3 uid="uid://icwb21e3god5"]
+
+[ext_resource type="Shader" uid="uid://cxjjiqcmxc4oi" path="res://assets/shaders/viewmodel.gdshader" id="1_moln3"]
+[ext_resource type="Texture2D" uid="uid://jp5wp1s85ojw" path="res://assets/textures/deagle/DesertEagle_C.png" id="2_qtpar"]
+[ext_resource type="Texture2D" uid="uid://drnvgj6jc2iop" path="res://assets/textures/deagle/DesertEagle_AO.png" id="3_bhkpu"]
+[ext_resource type="Texture2D" uid="uid://cy3kixa0f8nwp" path="res://assets/textures/deagle/DesertEagle_M.png" id="4_e6whf"]
+[ext_resource type="Texture2D" uid="uid://dmiditroirisu" path="res://assets/textures/deagle/DesertEagle_N.png" id="5_rmli1"]
+[ext_resource type="Texture2D" uid="uid://ek6o5e7ymqjc" path="res://assets/textures/deagle/DesertEagle_R.png" id="6_67l3k"]
+
+[resource]
+resource_name = "DesertEagle"
+render_priority = 0
+shader = ExtResource("1_moln3")
+shader_parameter/fov = 75.0
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/texture_albedo = ExtResource("2_qtpar")
+shader_parameter/albedo_texture_size = Vector2i(4096, 4096)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/texture_metallic = ExtResource("4_e6whf")
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/texture_roughness = ExtResource("6_67l3k")
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 1.0
+shader_parameter/texture_normal = ExtResource("5_rmli1")
+shader_parameter/normal_scale = 1.0
+shader_parameter/texture_ambient_occlusion = ExtResource("3_bhkpu")
+shader_parameter/ao_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/ao_light_affect = 1.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)

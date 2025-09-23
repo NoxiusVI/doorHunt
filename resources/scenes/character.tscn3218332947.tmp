@@ -1,0 +1,166 @@
+[gd_scene load_steps=19 format=3 uid="uid://ccufeao1sugpg"]
+
+[ext_resource type="Script" uid="uid://pbmfnuppxsso" path="res://resources/scripts/character.gd" id="1_twbhq"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_twbhq"]
+friction = 0.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jpo0n"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 0
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 0
+properties/2/path = NodePath(".:linear_velocity")
+properties/2/spawn = true
+properties/2/replication_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rsj34"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mv7vq"]
+material = SubResource("StandardMaterial3D_rsj34")
+size = Vector3(0.3, 0.1, 0.1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_xlx53"]
+radius = 0.25
+height = 0.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_v5mm5"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jpo0n"]
+albedo_color = Color(0.252028, 0.252028, 0.252028, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_rsj34"]
+material = SubResource("StandardMaterial3D_jpo0n")
+radius = 0.15
+height = 0.15
+is_hemisphere = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_twbhq"]
+albedo_color = Color(0.525101, 0.525101, 0.525101, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_157i2"]
+material = SubResource("StandardMaterial3D_twbhq")
+radius = 0.25
+height = 1.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_b6e1d"]
+radius = 0.25
+height = 1.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_i021w"]
+radius = 0.25
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_twbhq"]
+radius = 0.2
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_twbhq"]
+sky_top_color = Color(0.594028, 0.824898, 0.94794, 1)
+sky_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+sky_curve = 0.204906
+ground_bottom_color = Color(0.59, 0.3776, 0.3953, 1)
+ground_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+ground_curve = 0.095137
+sun_angle_max = 5.0
+sun_curve = 0.819624
+
+[sub_resource type="Sky" id="Sky_8oqg3"]
+sky_material = SubResource("ProceduralSkyMaterial_twbhq")
+
+[sub_resource type="Environment" id="Environment_jpo0n"]
+background_mode = 2
+sky = SubResource("Sky_8oqg3")
+ssao_enabled = true
+ssao_power = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_twbhq"]
+
+[node name="Character" type="RigidBody3D"]
+axis_lock_angular_x = true
+axis_lock_angular_z = true
+physics_material_override = SubResource("PhysicsMaterial_twbhq")
+script = ExtResource("1_twbhq")
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_jpo0n")
+visibility_update_mode = 1
+
+[node name="Weapon" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.7, -0.3)
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.24982, 0)
+
+[node name="Goggles" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.25)
+mesh = SubResource("BoxMesh_mv7vq")
+skeleton = NodePath("../..")
+
+[node name="HeadMesh" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.000180006, 0)
+mesh = SubResource("SphereMesh_xlx53")
+skeleton = NodePath("../..")
+
+[node name="Shoulders" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+
+[node name="LHand" type="MeshInstance3D" parent="Shoulders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0, 0)
+mesh = SubResource("SphereMesh_v5mm5")
+skeleton = NodePath("../..")
+
+[node name="RHand" type="MeshInstance3D" parent="Shoulders"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0, 0)
+mesh = SubResource("SphereMesh_v5mm5")
+skeleton = NodePath("../..")
+
+[node name="Hips" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+
+[node name="LFoot" type="MeshInstance3D" parent="Hips"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, -0.25, 0)
+mesh = SubResource("SphereMesh_rsj34")
+skeleton = NodePath("../..")
+
+[node name="RFoot" type="MeshInstance3D" parent="Hips"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, -0.25, 0)
+mesh = SubResource("SphereMesh_rsj34")
+skeleton = NodePath("../..")
+
+[node name="Body" type="Node3D" parent="."]
+
+[node name="BodyMesh" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CapsuleMesh_157i2")
+skeleton = NodePath("../..")
+
+[node name="BodyCollider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("CapsuleShape3D_b6e1d")
+
+[node name="HeadCollider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+shape = SubResource("SphereShape3D_i021w")
+
+[node name="GroundCast" type="ShapeCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("SphereShape3D_twbhq")
+target_position = Vector3(0, -0.5, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-0.840396, 0.0941125, -0.533738, 5.47068e-09, 0.984808, 0.173648, 0.541972, 0.145933, -0.827629, -0.514882, 1.01538, -1.13062)
+
+[node name="Lighting" type="WorldEnvironment" parent="Camera3D"]
+environment = SubResource("Environment_jpo0n")
+
+[node name="Sun" type="DirectionalLight3D" parent="Camera3D/Lighting"]
+transform = Transform3D(-0.5, -0.75, 0.433013, 0, 0.5, 0.866025, -0.866025, 0.433013, -0.25, 0, 0, 0)
+shadow_enabled = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_twbhq")

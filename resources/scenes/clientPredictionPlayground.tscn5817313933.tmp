@@ -1,0 +1,136 @@
+[gd_scene load_steps=8 format=3 uid="uid://ddp0gae44ist8"]
+
+[ext_resource type="Material" uid="uid://tx6h17ke8u72" path="res://assets/materials/blackGrid.tres" id="1_elgsa"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_my7ss"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ermd8"]
+material = ExtResource("1_elgsa")
+size = Vector2(32, 32)
+
+[sub_resource type="GDScript" id="GDScript_elgsa"]
+resource_name = "weeeee"
+script/source = "extends Node
+
+var peer : ENetMultiplayerPeer
+var address : String = \"localhost\"
+var port : int = 12345
+
+var canFunction : bool = true
+
+@export var playerSpawner : MultiplayerSpawner
+
+var playerNode = preload(\"res://resources/scenes/playerServer.tscn\")
+
+func createPlayer(peerPressure):
+	var newPlayerNode = playerNode.instantiate()
+	newPlayerNode.set(\"name\",str(peerPressure))
+	print(\"PEER ID:\",peerPressure)
+	return newPlayerNode
+
+func _ready() -> void:
+	playerSpawner.spawn_function = createPlayer
+
+func _on_join_pressed() -> void:
+	if not canFunction: return
+	canFunction = false
+	peer = ENetMultiplayerPeer.new()
+	peer.create_client(address,port)
+	multiplayer.multiplayer_peer = peer
+	peer.peer_connected.connect(on_peer_connected)
+	on_peer_connected(1)
+
+func _on_host_pressed() -> void:
+	if not canFunction: return
+	canFunction = false
+	peer = ENetMultiplayerPeer.new()
+	peer.create_server(port)
+	multiplayer.multiplayer_peer = peer
+	peer.peer_connected.connect(on_peer_connected)
+	on_peer_connected(1)
+
+func on_peer_connected(id):
+	if multiplayer.has_multiplayer_peer():
+		var player = playerSpawner.spawn(1)
+		#if player:
+		#	player.set_multiplayer_authority(1)
+		#sexyTImePersonThingy.get_node(\"MS\").set_multiplayer_authority(id)
+"
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_elgsa"]
+sky_top_color = Color(0.594028, 0.824898, 0.94794, 1)
+sky_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+sky_curve = 0.204906
+ground_bottom_color = Color(0.59, 0.3776, 0.3953, 1)
+ground_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+ground_curve = 0.095137
+sun_angle_max = 5.0
+sun_curve = 0.819624
+
+[sub_resource type="Sky" id="Sky_8oqg3"]
+sky_material = SubResource("ProceduralSkyMaterial_elgsa")
+
+[sub_resource type="Environment" id="Environment_my7ss"]
+background_mode = 2
+sky = SubResource("Sky_8oqg3")
+ssao_enabled = true
+ssao_power = 2.0
+
+[node name="Root" type="Node"]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://buioty6jt11iv")
+spawn_path = NodePath("../World/Players")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Ground" type="StaticBody3D" parent="World"]
+
+[node name="Collider" type="CollisionShape3D" parent="World/Ground"]
+shape = SubResource("WorldBoundaryShape3D_my7ss")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Ground"]
+mesh = SubResource("PlaneMesh_ermd8")
+
+[node name="Camera3D" type="Camera3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 5)
+
+[node name="Players" type="Node3D" parent="World"]
+
+[node name="Networker" type="Node" parent="."]
+
+[node name="MultiplayerPeer" type="Node" parent="Networker" node_paths=PackedStringArray("playerSpawner")]
+script = SubResource("GDScript_elgsa")
+playerSpawner = NodePath("../../PlayerSpawner")
+
+[node name="Lighting" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_my7ss")
+
+[node name="Sun" type="DirectionalLight3D" parent="Lighting"]
+transform = Transform3D(-0.5, -0.75, 0.433013, 0, 0.5, 0.866025, -0.866025, 0.433013, -0.25, 0, 0, 0)
+shadow_enabled = true
+
+[node name="GUI" type="SubViewportContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Viewport" type="SubViewport" parent="GUI"]
+transparent_bg = true
+size = Vector2i(1920, 1080)
+
+[node name="Join" type="Button" parent="GUI/Viewport"]
+offset_left = 700.0
+offset_top = 400.0
+offset_right = 900.0
+offset_bottom = 440.0
+text = "JOIN"
+
+[node name="Host" type="Button" parent="GUI/Viewport"]
+offset_left = 700.0
+offset_top = 360.0
+offset_right = 900.0
+offset_bottom = 400.0
+text = "HOST"
+
+[connection signal="pressed" from="GUI/Viewport/Join" to="Networker/MultiplayerPeer" method="_on_join_pressed"]
+[connection signal="pressed" from="GUI/Viewport/Host" to="Networker/MultiplayerPeer" method="_on_host_pressed"]

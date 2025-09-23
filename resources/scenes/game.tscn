@@ -1,0 +1,60 @@
+[gd_scene load_steps=8 format=3 uid="uid://uy5gotoomcdn"]
+
+[ext_resource type="Material" uid="uid://tx6h17ke8u72" path="res://assets/materials/prototypeGrid/blackGrid.tres" id="1_yovgr"]
+[ext_resource type="PackedScene" uid="uid://dghmpjgcusb14" path="res://resources/scenes/player.tscn" id="2_8oqg3"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_wbrt8"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_eo0ot"]
+size = Vector2(64, 64)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yovgr"]
+sky_top_color = Color(0.594028, 0.824898, 0.94794, 1)
+sky_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+sky_curve = 0.204906
+ground_bottom_color = Color(0.59, 0.3776, 0.3953, 1)
+ground_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+ground_curve = 0.095137
+sun_angle_max = 5.0
+sun_curve = 0.819624
+
+[sub_resource type="Sky" id="Sky_yovgr"]
+sky_material = SubResource("ProceduralSkyMaterial_yovgr")
+
+[sub_resource type="Environment" id="Environment_eo0ot"]
+background_mode = 2
+sky = SubResource("Sky_yovgr")
+ssao_enabled = true
+ssao_power = 2.0
+
+[node name="Game" type="Node"]
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Ground" type="StaticBody3D" parent="World"]
+
+[node name="Collider" type="CollisionShape3D" parent="World/Ground"]
+shape = SubResource("WorldBoundaryShape3D_wbrt8")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Ground"]
+material_override = ExtResource("1_yovgr")
+mesh = SubResource("PlaneMesh_eo0ot")
+
+[node name="Ground2" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, -12)
+
+[node name="Collider" type="CollisionShape3D" parent="World/Ground2"]
+shape = SubResource("WorldBoundaryShape3D_wbrt8")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Ground2"]
+material_override = ExtResource("1_yovgr")
+mesh = SubResource("PlaneMesh_eo0ot")
+
+[node name="Player" parent="World" instance=ExtResource("2_8oqg3")]
+
+[node name="Lighting" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_eo0ot")
+
+[node name="Sun" type="DirectionalLight3D" parent="Lighting"]
+transform = Transform3D(-0.5, -0.75, 0.433013, 0, 0.5, 0.866025, -0.866025, 0.433013, -0.25, 0, 0, 0)
+shadow_enabled = true
