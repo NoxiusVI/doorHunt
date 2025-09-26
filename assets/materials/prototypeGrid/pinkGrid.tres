@@ -1,7 +1,0 @@
-[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dl6n4bfh4gqwv"]
-
-[ext_resource type="Texture2D" uid="uid://btueqrxmcj4nl" path="res://addons/godot-prototype-texture/Vector/grid_1024x1024/grid_orange_1024x1024.svg" id="1_4fuox"]
-
-[resource]
-albedo_texture = ExtResource("1_4fuox")
-uv1_triplanar = true

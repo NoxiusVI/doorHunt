@@ -1,13 +1,37 @@
-[gd_scene load_steps=18 format=3 uid="uid://ccufeao1sugpg"]
+[gd_scene load_steps=23 format=3 uid="uid://ccufeao1sugpg"]
 
 [ext_resource type="Script" uid="uid://pbmfnuppxsso" path="res://resources/scripts/character.gd" id="1_twbhq"]
-[ext_resource type="Script" uid="uid://ck4lw0khgrrma" path="res://resources/scripts/input/movementInput.gd" id="2_mv7vq"]
+[ext_resource type="Script" uid="uid://ck4lw0khgrrma" path="res://resources/scripts/input/playerInput.gd" id="2_mv7vq"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_rsj34"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="3_mv7vq"]
 [ext_resource type="FontFile" uid="uid://cj6jrm0g02aoj" path="res://assets/fonts/whitrabt.ttf" id="5_157i2"]
+[ext_resource type="Material" uid="uid://ddt6wwly7sqas" path="res://assets/materials/player/head.tres" id="5_v1bw7"]
+[ext_resource type="Material" uid="uid://cyynkd20l51nw" path="res://assets/materials/player/body.tres" id="6_htke2"]
+[ext_resource type="Material" uid="uid://y2kq1cryodtg" path="res://assets/materials/player/feet.tres" id="7_3dvip"]
+[ext_resource type="Material" uid="uid://icwb21e3god5" path="res://assets/materials/deagle/deagleFP.tres" id="8_3dvip"]
+[ext_resource type="Material" uid="uid://8iire3n4woag" path="res://assets/materials/player/armsFP.tres" id="9_hrcr2"]
+[ext_resource type="PackedScene" uid="uid://dhsm0hujkvw5" path="res://resources/scenes/deagle.tscn" id="11_3dvip"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_157i2"]
 friction = 0.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_xlx53"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_xlx53"]
+material = ExtResource("5_v1bw7")
+radius = 0.25
+height = 0.5
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_157i2"]
+material = ExtResource("6_htke2")
+radius = 0.25
+height = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_rsj34"]
+material = ExtResource("7_3dvip")
+radius = 0.15
+height = 0.15
+is_hemisphere = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mv7vq"]
 albedo_color = Color(0, 0, 0, 1)
@@ -16,34 +40,9 @@ albedo_color = Color(0, 0, 0, 1)
 material = SubResource("StandardMaterial3D_mv7vq")
 size = Vector3(0.3, 0.1, 0.4)
 
-[sub_resource type="SphereMesh" id="SphereMesh_xlx53"]
-radius = 0.25
-height = 0.5
-
-[sub_resource type="SphereMesh" id="SphereMesh_v5mm5"]
-radius = 0.15
-height = 0.3
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_157i2"]
-albedo_color = Color(0.525101, 0.525101, 0.525101, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_157i2"]
-material = SubResource("StandardMaterial3D_157i2")
-radius = 0.25
-height = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xlx53"]
-albedo_color = Color(0.252028, 0.252028, 0.252028, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_rsj34"]
-material = SubResource("StandardMaterial3D_xlx53")
-radius = 0.15
-height = 0.15
-is_hemisphere = true
-
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mv7vq"]
-radius = 0.25
-height = 1.5
+radius = 0.3
+height = 1.55
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_twbhq"]
 radius = 0.2
@@ -52,11 +51,12 @@ radius = 0.2
 base_font = ExtResource("5_157i2")
 spacing_top = 3
 
+[sub_resource type="ViewportTexture" id="ViewportTexture_3dvip"]
+viewport_path = NodePath("Nameplate/NameViewport")
+
 [node name="Character" type="RigidBody3D" node_paths=PackedStringArray("input", "characterRoot", "cameraOrigin", "camera", "groundCast")]
-axis_lock_angular_x = true
-axis_lock_angular_y = true
-axis_lock_angular_z = true
 physics_material_override = SubResource("PhysicsMaterial_157i2")
+can_sleep = false
 lock_rotation = true
 script = ExtResource("1_twbhq")
 input = NodePath("Input")
@@ -64,14 +64,19 @@ characterRoot = NodePath("Root")
 cameraOrigin = NodePath("Head")
 camera = NodePath("Head/Camera")
 groundCast = NodePath("GroundCast")
+gunShader = ExtResource("8_3dvip")
+handShader = ExtResource("9_hrcr2")
 
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_rsj34")
 root = NodePath("..")
 enable_prediction = true
-state_properties = Array[String]([":physics_state", ":linear_velocity", ":angular_velocity"])
-input_properties = Array[String](["Input:moveDirection", "Input:lookDirection", "Input:sprinting", "Input:jumping", "Input:crouching"])
+state_properties = Array[String]([":physics_state", ":lock_rotation", ":health"])
+input_properties = Array[String](["Input:moveDirection", "Input:lookDirection", "Input:sprinting", "Input:jumping", "Input:crouching", "Input:fire", "Input:reload"])
 metadata/_custom_type_script = "uid://d350u8evihs1u"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_xlx53")
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_mv7vq")
@@ -88,28 +93,13 @@ metadata/_custom_type_script = "uid://ck4lw0khgrrma"
 
 [node name="Meshes" type="Node3D" parent="Root"]
 
-[node name="Goggles" type="MeshInstance3D" parent="Root/Meshes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, -0.1)
-mesh = SubResource("BoxMesh_mv7vq")
-skeleton = NodePath("../../..")
-
 [node name="HeadMesh" type="MeshInstance3D" parent="Root/Meshes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 mesh = SubResource("SphereMesh_xlx53")
 skeleton = NodePath("../../..")
 
-[node name="LHand" type="MeshInstance3D" parent="Root/Meshes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.5, 0)
-mesh = SubResource("SphereMesh_v5mm5")
-skeleton = NodePath("../../..")
-
-[node name="RHand" type="MeshInstance3D" parent="Root/Meshes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.5, 0)
-mesh = SubResource("SphereMesh_v5mm5")
-skeleton = NodePath("../../..")
-
 [node name="BodyMesh" type="MeshInstance3D" parent="Root/Meshes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.525, 0)
 mesh = SubResource("CapsuleMesh_157i2")
 skeleton = NodePath("../../..")
 
@@ -130,8 +120,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 
 [node name="Camera" type="Camera3D" parent="Head"]
 
+[node name="Goggles" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.1)
+mesh = SubResource("BoxMesh_mv7vq")
+skeleton = NodePath("../..")
+
+[node name="WeaponGrip" type="Node3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, -0.3, -0.55)
+
+[node name="Weapon" parent="Head" node_paths=PackedStringArray("rollback_synchronizer") instance=ExtResource("11_3dvip")]
+rollback_synchronizer = NodePath("../../RollbackSynchronizer")
+
 [node name="Collider" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.775, 0)
 shape = SubResource("CapsuleShape3D_mv7vq")
 
 [node name="GroundCast" type="ShapeCast3D" parent="."]
@@ -139,15 +140,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 shape = SubResource("SphereShape3D_twbhq")
 target_position = Vector3(0, -0.5, 0)
 
-[node name="SpeedLabel" type="RichTextLabel" parent="."]
+[node name="Debug" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="SpeedLabel" type="RichTextLabel" parent="Debug"]
 offset_right = 960.0
-offset_bottom = 25.0
+offset_bottom = 26.0
 theme_override_fonts/normal_font = SubResource("FontVariation_xlx53")
 theme_override_font_sizes/normal_font_size = 30
 text = "SPEED : 0"
 fit_content = true
 
-[node name="PositionLabel" type="RichTextLabel" parent="."]
+[node name="PositionLabel" type="RichTextLabel" parent="Debug"]
 offset_top = 26.0
 offset_right = 960.0
 offset_bottom = 52.0
@@ -156,7 +160,7 @@ theme_override_font_sizes/normal_font_size = 30
 text = "POSITION : 0, 0, 0"
 fit_content = true
 
-[node name="RotationLabel" type="RichTextLabel" parent="."]
+[node name="RotationLabel" type="RichTextLabel" parent="Debug"]
 offset_top = 52.0
 offset_right = 960.0
 offset_bottom = 78.0
@@ -164,3 +168,31 @@ theme_override_fonts/normal_font = SubResource("FontVariation_xlx53")
 theme_override_font_sizes/normal_font_size = 30
 text = "ROTATION : 0"
 fit_content = true
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Nameplate" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+
+[node name="NameSprite" type="Sprite3D" parent="Nameplate"]
+pixel_size = 0.0025
+billboard = 1
+texture = SubResource("ViewportTexture_3dvip")
+
+[node name="NameViewport" type="SubViewport" parent="Nameplate"]
+transparent_bg = true
+size = Vector2i(800, 80)
+
+[node name="NameLabel" type="RichTextLabel" parent="Nameplate/NameViewport"]
+offset_right = 840.0
+offset_bottom = 80.0
+theme_override_fonts/normal_font = SubResource("FontVariation_xlx53")
+theme_override_font_sizes/normal_font_size = 56
+bbcode_enabled = true
+text = "DOMMY MOMMY"
+fit_content = true
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://cx6thp6yubwf4"]
+
+[ext_resource type="FontFile" uid="uid://cj6jrm0g02aoj" path="res://assets/fonts/whitrabt.ttf" id="1_y7cah"]
+
+[sub_resource type="FontVariation" id="FontVariation_op0ep"]
+base_font = ExtResource("1_y7cah")
+spacing_top = 3
+
+[node name="Lobby" type="Button"]
+custom_minimum_size = Vector2(300, 0)
+theme_override_fonts/font = SubResource("FontVariation_op0ep")
+theme_override_font_sizes/font_size = 21
+text = "NOXIUS'S LOBBY"
+autowrap_mode = 3

@@ -1,0 +1,213 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8r2vkmpxgoyq"]
+
+[sub_resource type="GDScript" id="GDScript_pok8h"]
+resource_name = "MakSever"
+script/source = "extends Control
+
+func _on_host_pressed() -> void:
+	SteamLobby.createLobby()
+
+
+var refreshed : bool = true
+
+func _on_refresh_pressed() -> void:
+	$Scroll.visible = refreshed
+	$Refresh.text = \"Open Lobbies\" if not refreshed else \"Close Lobbies\"
+	if refreshed:
+		 # Set distance to worldwide
+		Steam.addRequestLobbyListStringFilter(\"name\", \"CAVE DIVING\", Steam.LOBBY_COMPARISON_EQUAL)
+		Steam.addRequestLobbyListDistanceFilter(Steam.LOBBY_DISTANCE_FILTER_WORLDWIDE)
+
+		print(\"Requesting a lobby list\")
+		Steam.requestLobbyList()
+	refreshed = not refreshed
+
+
+func _on_leave_pressed() -> void:
+	SteamLobby.leaveLobby()
+
+
+func _on_text_box_resized() -> void:
+	$DebugText.size = Vector2(552,500 - $TextBox.size.y)
+	$TextBox.position = Vector2(30,540 - $TextBox.size.y)
+
+
+func _on_text_box_text_changed() -> void:
+	$TextBox.size = Vector2(470,40)
+
+# This would be connected to a TextEdit node's \"text_submitted\" signal.
+func sendMessage(text: String):
+	$ChatManager.send_message.rpc(text, SteamClient.steamId)
+
+func _on_send_pressed() -> void:
+	if SteamLobby.lobbyId != 0 and SteamLobby.lobbyMembers.size() >= 1:
+		$TextBox.placeholder_text = \"Type here.\"
+		var message = $TextBox.text
+		sendMessage(message)
+		$TextBox.size = Vector2(470,40)
+	else:
+		$TextBox.placeholder_text = \"No people in lobby to message, try again later.\"
+	$TextBox.text = \"\"
+"
+
+[sub_resource type="GDScript" id="GDScript_jj785"]
+resource_name = "ChatManager"
+script/source = "extends Node
+
+var messages = [] # An array to store all chat messages
+
+func find_unclosed_bbcode(text: String) -> Array:
+	var regex = RegEx.new()
+	regex.compile(\"\\\\[/?([a-zA-Z]+)(?:=.*?)?\\\\]\")
+	
+	var matches = regex.search_all(text)
+	var stack = []
+	for matcha in matches:
+		var tag_name = matcha.get_string(1)
+
+		if matcha.get_string(0).begins_with(\"[/\"):
+				# This is a closing tag
+			if stack.size() > 0 and stack.back() == tag_name:
+				stack.pop_back()
+			else:
+				# This closing tag has no matching opener on the stack
+				# For this specific problem, we are only looking for unclosed
+				# openers, so we can ignore this. You can add more complex
+				# error handling here if needed.
+				pass
+		else:
+			# This is an opening tag
+			stack.push_back(tag_name)
+	stack.reverse()
+	return stack
+
+# Called by a client to send a message to the host.
+@rpc(\"any_peer\",\"call_local\",\"reliable\")
+func send_message(messageText: String, authorId: int):
+	if SteamClient.steamId != SteamLobby.hostSteamId: return
+	# Get the ID of the peer who sent the message to verify
+	var senderId = get_multiplayer_authority()
+	var senderName = Steam.getFriendPersonaName(authorId)
+	var trueMessageText = messageText
+	# Optional: You can check if the sender_id is a valid player
+	print(\"Received message from ID %s: %s\" % [senderId, messageText])
+	
+	for code in find_unclosed_bbcode(messageText):
+		trueMessageText += \"[/%s]\" % code
+	
+	if trueMessageText.length() > 64:
+		trueMessageText = \"I am stinky I lack the intelligence to write 64 or less letters.\"
+	
+	var fullMessage = \"%s: %s\" % [SteamClient.getColoredName(authorId), trueMessageText]
+	messages.append(fullMessage)
+
+	# Now, broadcast this message to all connected peers
+	#display_message_on_chat(fullMessage)
+	display_message_on_chat.rpc(fullMessage)
+
+# Called by the host on all peers to display a new message.
+@rpc(\"authority\",\"call_local\",\"reliable\")
+func display_message_on_chat(message: String):
+	# This function is where you update your UI.
+	$\"../DebugText\".text += message + \"\\n\"
+"
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_pok8h")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Players")
+
+[node name="Players" type="Node2D" parent="."]
+position = Vector2(425, 286)
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 175.0
+offset_right = 845.321
+offset_bottom = 376.0
+expand_mode = 1
+
+[node name="DebugText" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 30.0
+offset_right = 582.0
+offset_bottom = 490.0
+bbcode_enabled = true
+text = "MESSAGES:"
+scroll_following = true
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 565.0
+offset_top = 30.0
+offset_right = 865.0
+offset_bottom = 365.0
+
+[node name="List" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+
+[node name="Host" type="Button" parent="."]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 500.0
+offset_right = 835.0
+offset_bottom = 540.0
+text = "Host
+"
+
+[node name="Leave" type="Button" parent="."]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 400.0
+offset_right = 835.0
+offset_bottom = 440.0
+text = "Leave Lobby
+"
+
+[node name="Refresh" type="Button" parent="."]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 450.0
+offset_right = 835.0
+offset_bottom = 490.0
+text = "Open Lobbies"
+
+[node name="Send" type="Button" parent="."]
+layout_mode = 0
+offset_left = 520.0
+offset_top = 500.0
+offset_right = 582.0
+offset_bottom = 540.0
+text = "SEND"
+
+[node name="TextBox" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 500.0
+offset_right = 500.0
+offset_bottom = 540.0
+placeholder_text = "Type here."
+scroll_fit_content_height = true
+draw_control_chars = true
+draw_tabs = true
+draw_spaces = true
+
+[node name="ChatManager" type="Node" parent="."]
+script = SubResource("GDScript_jj785")
+
+[connection signal="pressed" from="Host" to="." method="_on_host_pressed"]
+[connection signal="pressed" from="Leave" to="." method="_on_leave_pressed"]
+[connection signal="pressed" from="Refresh" to="." method="_on_refresh_pressed"]
+[connection signal="pressed" from="Send" to="." method="_on_send_pressed"]
+[connection signal="resized" from="TextBox" to="." method="_on_text_box_resized"]
+[connection signal="text_changed" from="TextBox" to="." method="_on_text_box_text_changed"]

@@ -1,10 +1,15 @@
-[gd_scene load_steps=17 format=3 uid="uid://ddp0gae44ist8"]
+[gd_scene load_steps=24 format=3 uid="uid://ddp0gae44ist8"]
 
 [ext_resource type="Material" uid="uid://tx6h17ke8u72" path="res://assets/materials/prototypeGrid/blackGrid.tres" id="1_elgsa"]
 [ext_resource type="Script" uid="uid://wr5ur5dqrkni" path="res://addons/netfox.extras/physics/godot_driver_3d.gd" id="1_lgtei"]
-[ext_resource type="Script" uid="uid://c2d7r65jhji0e" path="res://resources/scripts/multiplayer/network.gd" id="2_ermd8"]
-[ext_resource type="Material" uid="uid://dl6n4bfh4gqwv" path="res://assets/materials/prototypeGrid/pinkGrid.tres" id="3_shg7s"]
+[ext_resource type="Material" uid="uid://dl6n4bfh4gqwv" path="res://assets/materials/prototypeGrid/orangeGrid.tres" id="3_shg7s"]
+[ext_resource type="Script" uid="uid://c762f6b58uj0h" path="res://resources/scripts/multiplayer/connectionHandler.gd" id="4_shg7s"]
+[ext_resource type="Material" uid="uid://bf11q7h07okd8" path="res://assets/materials/prototypeGrid/blueGrid.tres" id="4_tu0yp"]
+[ext_resource type="PackedScene" uid="uid://ccufeao1sugpg" path="res://resources/scenes/character.tscn" id="5_op0ep"]
 [ext_resource type="FontFile" uid="uid://cj6jrm0g02aoj" path="res://assets/fonts/whitrabt.ttf" id="5_shg7s"]
+[ext_resource type="Script" uid="uid://c7x42ist55slp" path="res://resources/scripts/steam/steamLobby.gd" id="6_goedf"]
+[ext_resource type="Script" uid="uid://b6ht1s88sbb1r" path="res://resources/scripts/lobbyUI.gd" id="7_r1g4i"]
+[ext_resource type="PackedScene" uid="uid://cx6thp6yubwf4" path="res://resources/scenes/lobbyButton.tscn" id="8_goedf"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_op0ep"]
 size = Vector3(32, 1, 32)
@@ -27,52 +32,16 @@ size = Vector3(4, 1, 1)
 material = ExtResource("3_shg7s")
 size = Vector3(4, 1, 1)
 
-[sub_resource type="GDScript" id="GDScript_elgsa"]
-resource_name = "weeeee"
-script/source = "extends Node
+[sub_resource type="BoxShape3D" id="BoxShape3D_r1g4i"]
+size = Vector3(1, 3, 4)
 
-var peer : ENetMultiplayerPeer
-var address : String = \"localhost\"
-var port : int = 12345
+[sub_resource type="BoxMesh" id="BoxMesh_8dke0"]
+material = ExtResource("4_tu0yp")
+size = Vector3(1, 3, 4)
 
-var canFunction : bool = true
-
-var localPlayer : CharacterBody3D
-
-@export var playerSpawner : MultiplayerSpawner
-var charNode : PackedScene = preload(\"res://resources/scenes/character.tscn\")
-
-func createPlayer(peerPressure : int) -> NetworkRigidBody3D:
-	var newPlayerNode : NetworkRigidBody3D = charNode.instantiate()
-	newPlayerNode.set(\"name\",str(peerPressure))
-	newPlayerNode.set(\"peerId\",peerPressure)
-	print(\"PEER ID:\",peerPressure)
-	return newPlayerNode
-
-func _ready() -> void:
-	multiplayer.multiplayer_peer = null
-	playerSpawner.spawn_function = createPlayer
-
-func _on_join_pressed() -> void:
-	if not canFunction: return
-	canFunction = false
-	peer = ENetMultiplayerPeer.new()
-	peer.create_client(address,port)
-	multiplayer.multiplayer_peer = peer
-
-func _on_host_pressed() -> void:
-	if not canFunction: return
-	canFunction = false
-	peer = ENetMultiplayerPeer.new()
-	peer.create_server(port)
-	multiplayer.multiplayer_peer = peer
-	peer.peer_connected.connect(on_peer_connected)
-	#on_peer_connected(1)
-
-func on_peer_connected(id : int) -> void:
-	if multiplayer.has_multiplayer_peer():
-		playerSpawner.spawn(id)
-"
+[sub_resource type="CylinderMesh" id="CylinderMesh_shg7s"]
+bottom_radius = 0.0
+height = 1.0
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_elgsa"]
 sky_top_color = Color(0.594028, 0.824898, 0.94794, 1)
@@ -101,9 +70,8 @@ spacing_top = 3
 
 [node name="PhysicsDriver3D" type="Node" parent="."]
 script = ExtResource("1_lgtei")
-metadata/_custom_type_script = "uid://wr5ur5dqrkni"
 
-[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://ccufeao1sugpg")
 spawn_path = NodePath("../Players")
 
@@ -163,9 +131,57 @@ shape = SubResource("BoxShape3D_lgtei")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 mesh = SubResource("BoxMesh_op0ep")
 
-[node name="Camera" type="Camera3D" parent="World"]
+[node name="HighWall" type="StaticBody3D" parent="World"]
+transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 8, 0, 7.1961527)
+
+[node name="Collider" type="CollisionShape3D" parent="World/HighWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_r1g4i")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/HighWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+mesh = SubResource("BoxMesh_8dke0")
+
+[node name="HighWall2" type="StaticBody3D" parent="World"]
+transform = Transform3D(-0.9659259, 0, -0.25881892, 0, 1, 0, 0.25881892, 0, -0.9659259, -7.655395, 0, 7.4154153)
+
+[node name="Collider" type="CollisionShape3D" parent="World/HighWall2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_r1g4i")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/HighWall2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+mesh = SubResource("BoxMesh_8dke0")
+
+[node name="HighWall3" type="StaticBody3D" parent="World"]
+transform = Transform3D(-0.2522294, 0.05359561, 0.9661821, -0.015217567, 0.99812186, -0.059340026, -0.96754783, -0.029670246, -0.25094008, -7.3691874, 0.20692496, -7.4313354)
+
+[node name="Collider" type="CollisionShape3D" parent="World/HighWall3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_r1g4i")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/HighWall3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+mesh = SubResource("BoxMesh_8dke0")
+
+[node name="HighWall4" type="StaticBody3D" parent="World"]
+transform = Transform3D(0.8660255, 0, 0.49999982, 0, 1, 0, -0.49999982, 0, 0.8660255, 7.2320514, 0, -8.098075)
+
+[node name="Collider" type="CollisionShape3D" parent="World/HighWall4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_r1g4i")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/HighWall4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+mesh = SubResource("BoxMesh_8dke0")
+
+[node name="SpectatorCamera" type="Camera3D" parent="World"]
 transform = Transform3D(1, 0, 0, 0, 0.906308, 0.422618, 0, -0.422618, 0.906308, 0, 5, 8)
 current = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="World/SpectatorCamera"]
+transform = Transform3D(1, 0, 0, 0, -2.9802322e-08, 1, 0, -1, -2.9802322e-08, 0, -1.4901161e-08, -0.5)
+mesh = SubResource("CylinderMesh_shg7s")
 
 [node name="Players" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.416145, 0)
@@ -174,11 +190,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.416145, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="Network" type="Node" parent="."]
-script = ExtResource("2_ermd8")
 
-[node name="MultiplayerPeer" type="Node" parent="Network" node_paths=PackedStringArray("playerSpawner")]
-script = SubResource("GDScript_elgsa")
-playerSpawner = NodePath("../../PlayerSpawner")
+[node name="ConnectionHandler" type="Node" parent="Network" node_paths=PackedStringArray("mpSpawner")]
+script = ExtResource("4_shg7s")
+mpSpawner = NodePath("../../MultiplayerSpawner")
+playerScene = ExtResource("5_op0ep")
+
+[node name="SteamLobbies" type="Node" parent="Network" node_paths=PackedStringArray("connectionHandler", "lobbyButtonList")]
+script = ExtResource("6_goedf")
+lobbyButtonPrefab = ExtResource("8_goedf")
+connectionHandler = NodePath("../ConnectionHandler")
+lobbyButtonList = NodePath("../../GUI/LobbyControl/Lobbies/List")
 
 [node name="Lighting" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_my7ss")
@@ -187,33 +209,87 @@ environment = SubResource("Environment_my7ss")
 transform = Transform3D(-0.5, -0.75, 0.433013, 0, 0.5, 0.866025, -0.866025, 0.433013, -0.25, 0, 0, 0)
 shadow_enabled = true
 
-[node name="GUI" type="SubViewportContainer" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="GUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 1
 
-[node name="Viewport" type="SubViewport" parent="GUI"]
-transparent_bg = true
-handle_input_locally = false
-size = Vector2i(1920, 1080)
-render_target_update_mode = 4
+[node name="LobbyControl" type="Control" parent="GUI" node_paths=PackedStringArray("steamLobby")]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 580.0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 1
+script = ExtResource("7_r1g4i")
+steamLobby = NodePath("../../Network/SteamLobbies")
 
-[node name="Join" type="Button" parent="GUI/Viewport"]
-offset_left = 700.0
-offset_top = 400.0
-offset_right = 900.0
-offset_bottom = 424.0
+[node name="Host" type="Button" parent="GUI/LobbyControl"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -130.0
+offset_right = -40.0
+offset_bottom = -90.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+mouse_filter = 1
 theme_override_fonts/font = SubResource("FontVariation_op0ep")
-theme_override_font_sizes/font_size = 30
-text = "JOIN"
-
-[node name="Host" type="Button" parent="GUI/Viewport"]
-offset_left = 700.0
-offset_top = 360.0
-offset_right = 900.0
-offset_bottom = 384.0
-theme_override_fonts/font = SubResource("FontVariation_op0ep")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 37
 text = "HOST"
 
-[connection signal="pressed" from="GUI/Viewport/Join" to="Network/MultiplayerPeer" method="_on_join_pressed"]
-[connection signal="pressed" from="GUI/Viewport/Host" to="Network/MultiplayerPeer" method="_on_host_pressed"]
+[node name="Leave" type="Button" parent="GUI/LobbyControl"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -80.0
+offset_right = -40.0
+offset_bottom = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+mouse_filter = 1
+theme_override_fonts/font = SubResource("FontVariation_op0ep")
+theme_override_font_sizes/font_size = 37
+text = "LEAVE"
+
+[node name="ToggleLobbies" type="Button" parent="GUI/LobbyControl"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -180.0
+offset_right = -40.0
+offset_bottom = -140.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+mouse_filter = 1
+theme_override_fonts/font = SubResource("FontVariation_op0ep")
+theme_override_font_sizes/font_size = 37
+text = "CLOSE LOBBIES"
+
+[node name="Lobbies" type="ScrollContainer" parent="GUI/LobbyControl"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 340.0
+offset_bottom = 350.0
+
+[node name="List" type="VBoxContainer" parent="GUI/LobbyControl/Lobbies"]
+layout_mode = 2
+
+[connection signal="pressed" from="GUI/LobbyControl/Host" to="GUI/LobbyControl" method="_on_host_pressed"]
+[connection signal="pressed" from="GUI/LobbyControl/Leave" to="GUI/LobbyControl" method="_on_leave_pressed"]
+[connection signal="pressed" from="GUI/LobbyControl/ToggleLobbies" to="GUI/LobbyControl" method="_on_toggle_lobbies_pressed"]

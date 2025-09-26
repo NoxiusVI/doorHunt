@@ -1,0 +1,237 @@
+[gd_scene load_steps=21 format=3 uid="uid://ddp0gae44ist8"]
+
+[ext_resource type="Material" uid="uid://tx6h17ke8u72" path="res://assets/materials/prototypeGrid/blackGrid.tres" id="1_elgsa"]
+[ext_resource type="Script" uid="uid://wr5ur5dqrkni" path="res://addons/netfox.extras/physics/godot_driver_3d.gd" id="1_lgtei"]
+[ext_resource type="Material" uid="uid://dl6n4bfh4gqwv" path="res://assets/materials/prototypeGrid/pinkGrid.tres" id="3_shg7s"]
+[ext_resource type="Script" uid="uid://c762f6b58uj0h" path="res://resources/scripts/multiplayer/connectionHandler.gd" id="4_shg7s"]
+[ext_resource type="PackedScene" uid="uid://ccufeao1sugpg" path="res://resources/scenes/character.tscn" id="5_op0ep"]
+[ext_resource type="FontFile" uid="uid://cj6jrm0g02aoj" path="res://assets/fonts/whitrabt.ttf" id="5_shg7s"]
+[ext_resource type="Script" uid="uid://c7x42ist55slp" path="res://resources/scripts/steam/steamLobby.gd" id="6_goedf"]
+[ext_resource type="Script" uid="uid://b6ht1s88sbb1r" path="res://resources/scripts/lobbyUI.gd" id="7_r1g4i"]
+[ext_resource type="PackedScene" uid="uid://cx6thp6yubwf4" path="res://resources/scenes/lobbyButton.tscn" id="8_goedf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_op0ep"]
+size = Vector3(32, 1, 32)
+
+[sub_resource type="BoxMesh" id="BoxMesh_goedf"]
+material = ExtResource("1_elgsa")
+size = Vector3(32, 1, 32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lgtei"]
+size = Vector3(1, 1, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_op0ep"]
+material = ExtResource("3_shg7s")
+size = Vector3(1, 1, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_shg7s"]
+size = Vector3(4, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rqlyk"]
+material = ExtResource("3_shg7s")
+size = Vector3(4, 1, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_shg7s"]
+bottom_radius = 0.0
+height = 1.0
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_elgsa"]
+sky_top_color = Color(0.594028, 0.824898, 0.94794, 1)
+sky_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+sky_curve = 0.204906
+ground_bottom_color = Color(0.59, 0.3776, 0.3953, 1)
+ground_horizon_color = Color(0.754429, 0.614832, 0.625231, 1)
+ground_curve = 0.095137
+sun_angle_max = 5.0
+sun_curve = 0.819624
+
+[sub_resource type="Sky" id="Sky_shg7s"]
+sky_material = SubResource("ProceduralSkyMaterial_elgsa")
+
+[sub_resource type="Environment" id="Environment_my7ss"]
+background_mode = 2
+sky = SubResource("Sky_shg7s")
+ssao_enabled = true
+ssao_power = 2.0
+
+[sub_resource type="FontVariation" id="FontVariation_op0ep"]
+base_font = ExtResource("5_shg7s")
+spacing_top = 3
+
+[node name="Root" type="Node"]
+
+[node name="PhysicsDriver3D" type="Node" parent="."]
+script = ExtResource("1_lgtei")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://ccufeao1sugpg")
+spawn_path = NodePath("../Players")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Ground" type="StaticBody3D" parent="World"]
+
+[node name="Collider" type="CollisionShape3D" parent="World/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_op0ep")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_goedf")
+
+[node name="LeftWall" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+
+[node name="Collider" type="CollisionShape3D" parent="World/LeftWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_lgtei")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/LeftWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_op0ep")
+
+[node name="FrontWall" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -4)
+
+[node name="Collider" type="CollisionShape3D" parent="World/FrontWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_shg7s")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/FrontWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_rqlyk")
+
+[node name="BackWall" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 5)
+
+[node name="Collider" type="CollisionShape3D" parent="World/BackWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_shg7s")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/BackWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_rqlyk")
+
+[node name="RightWall" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 2)
+
+[node name="Collider" type="CollisionShape3D" parent="World/RightWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_lgtei")
+
+[node name="Mesh" type="MeshInstance3D" parent="World/RightWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_op0ep")
+
+[node name="SpectatorCamera" type="Camera3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0.906308, 0.422618, 0, -0.422618, 0.906308, 0, 5, 8)
+current = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="World/SpectatorCamera"]
+transform = Transform3D(1, 0, 0, 0, -2.9802322e-08, 1, 0, -1, -2.9802322e-08, 0, -1.4901161e-08, -0.5)
+mesh = SubResource("CylinderMesh_shg7s")
+
+[node name="Players" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.416145, 0)
+
+[node name="Props" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="Network" type="Node" parent="."]
+
+[node name="ConnectionHandler" type="Node" parent="Network" node_paths=PackedStringArray("mpSpawner")]
+script = ExtResource("4_shg7s")
+mpSpawner = NodePath("../../MultiplayerSpawner")
+playerScene = ExtResource("5_op0ep")
+
+[node name="SteamLobbies" type="Node" parent="Network" node_paths=PackedStringArray("connectionHandler")]
+script = ExtResource("6_goedf")
+lobbyButtonPrefab = ExtResource("8_goedf")
+connectionHandler = NodePath("../ConnectionHandler")
+
+[node name="Lighting" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_my7ss")
+
+[node name="Sun" type="DirectionalLight3D" parent="Lighting"]
+transform = Transform3D(-0.5, -0.75, 0.433013, 0, 0.5, 0.866025, -0.866025, 0.433013, -0.25, 0, 0, 0)
+shadow_enabled = true
+
+[node name="GUI" type="SubViewportContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Viewport" type="SubViewport" parent="GUI"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="LobbyControl" type="Control" parent="GUI/Viewport" node_paths=PackedStringArray("steamLobby")]
+layout_mode = 3
+anchor_right = 0.5
+anchor_bottom = 0.5
+script = ExtResource("7_r1g4i")
+steamLobby = NodePath("../../../Network/SteamLobbies")
+
+[node name="Host" type="Button" parent="GUI/Viewport/LobbyControl"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -130.0
+offset_right = -40.0
+offset_bottom = -90.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_fonts/font = SubResource("FontVariation_op0ep")
+theme_override_font_sizes/font_size = 37
+text = "HOST"
+
+[node name="Leave" type="Button" parent="GUI/Viewport/LobbyControl"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -80.0
+offset_right = -40.0
+offset_bottom = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_fonts/font = SubResource("FontVariation_op0ep")
+theme_override_font_sizes/font_size = 37
+text = "LEAVE"
+
+[node name="ToggleLobbies" type="Button" parent="GUI/Viewport/LobbyControl"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -180.0
+offset_right = -40.0
+offset_bottom = -140.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_fonts/font = SubResource("FontVariation_op0ep")
+theme_override_font_sizes/font_size = 37
+text = "CLOSE LOBBIES"
+
+[node name="Lobbies" type="ScrollContainer" parent="GUI/Viewport/LobbyControl"]
+layout_mode = 0
+offset_left = 620.0
+offset_top = 40.0
+offset_right = 920.0
+offset_bottom = 350.0
+
+[node name="List" type="VBoxContainer" parent="GUI/Viewport/LobbyControl/Lobbies"]
+layout_mode = 2
+
+[connection signal="pressed" from="GUI/Viewport/LobbyControl/Host" to="GUI/Viewport/LobbyControl" method="_on_host_pressed"]
+[connection signal="pressed" from="GUI/Viewport/LobbyControl/Leave" to="GUI/Viewport/LobbyControl" method="_on_leave_pressed"]
+[connection signal="pressed" from="GUI/Viewport/LobbyControl/ToggleLobbies" to="GUI/Viewport/LobbyControl" method="_on_toggle_lobbies_pressed"]

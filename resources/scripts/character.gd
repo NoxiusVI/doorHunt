@@ -2,16 +2,18 @@ extends NetworkRigidBody3D
 
 @export_category("CONTROLLER")
 @export_group("MAX SPEED")
-@export var maxWalkSpeed : float = 4.0
-@export var maxSprintSpeed : float = 8.0
-@export var maxCrouchSpeed : float = 2.0
-@export_group("OTHER")
-@export var acceleration : float = 20.0
-@export var friction : float = 1.0
+@export var maxWalkSpeed : float = 3.0
+@export var maxSprintSpeed : float = 5.0
+@export var maxCrouchSpeed : float = 1.0
+@export_group("MOVEMENT SPEED")
+@export var acceleration : float = 40.0
+@export var deceleration : float = 40.0
+@export_group("VITALS")
+@export var maxHealth : float = 100.0
 
 
 @export_category("INPUT")
-@export var input : MovementInput
+@export var input : PlayerInput
 
 @export_category("NODES")
 @export var characterRoot : Node3D
@@ -23,18 +25,35 @@ extends NetworkRigidBody3D
 @onready var rbSync : RollbackSynchronizer = $RollbackSynchronizer
 var peerId : int = 0
 
+@export_group("Shaders")
+@export var gunShader : ShaderMaterial
+@export var handShader : ShaderMaterial
+
+var health : float = maxHealth
+
+func takeDamage(damage : float, isNewHit : bool) -> void:
+	if not is_multiplayer_authority(): return
+	_NetfoxLogger.new("test", "Test").info("peee pooo")
+	print("STARTING HP IS %s, IS NEW: %s" % [health,isNewHit])
+	health -= damage
+	print("TOOK %s DAMAGE, HP IS NOW %s" % [damage, health])
+
 func _ready() -> void:
 	# Wait a frame so peer_id is set
 	await get_tree().process_frame
-	if peerId == multiplayer.get_unique_id():
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		print(peerId)
-		$Head/Camera.make_current()
 
 	# Set owner
 	set_multiplayer_authority(1)
 	
 	input.set_multiplayer_authority(peerId)
+	
+	if input.is_multiplayer_authority():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		$Head/Weapon/WeaponGrip/Mesh.set("material_override",gunShader)
+		$Head/Weapon/WeaponGrip/RHand.set("material_override",handShader)
+		$Head/Weapon/WeaponGrip/LHand.set("material_override",handShader)
+		print(peerId)
+		$Head/Camera.make_current()
 	
 	rbSync.process_settings()
 
@@ -42,6 +61,10 @@ var time : float = 0
 @onready var lPos : Vector3 = $Root/Hips/LFoot.position
 
 func _process(delta: float) -> void:
+	if peerId != multiplayer.get_unique_id(): return
+	
+	$Debug.visible = true
+	
 	if Input.is_action_just_pressed("pause"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -71,30 +94,30 @@ func _process(delta: float) -> void:
 	$Root/Hips/RFoot.position = $Root/Hips/RFoot.position.lerp(targetROffset,1 - pow(0.01,delta))
 	$Root/Meshes.rotation = $Root/Meshes.rotation.lerp(targetBodyRotation,1 - pow(0.01,delta))
 	
-	$PositionLabel.text = "POSITION : " + str(position)
-	$RotationLabel.text = "ROTATION : " + str(characterRoot.rotation.y)
-	$SpeedLabel.text = "SPEED : " + str(linear_velocity.length())
+	$Debug/PositionLabel.text = "POSITION : " + str(position)
+	$Debug/RotationLabel.text = "ROTATION : " + str(characterRoot.rotation.y)
+	$Debug/SpeedLabel.text = "SPEED : " + str(linear_velocity.length())
 
 func _physics_rollback_tick(delta : float, _tick : int) -> void:
+	if health <= 0: lock_rotation=false; physics_material_override.friction = 1; return
 	groundCast.force_shapecast_update()
 	var isGrounded : bool = groundCast.is_colliding() and linear_velocity.y <= 0.1
 	
 	characterRoot.global_rotation = input.lookDirection*Vector3(0,1,0)
 	cameraOrigin.global_rotation = input.lookDirection
-	
-	if isGrounded:
-		var currentSpeed : Vector3 = Plane(Vector3.UP).project(linear_velocity)
-		var additive : Vector3 = -currentSpeed.normalized()*friction*(get_gravity()*mass).length()*(1.0/64.0)
-		self.apply_central_impulse(additive.normalized() * clamp(additive.length(),0,currentSpeed.length()))
 		
-		if input.jumping:
-			self.apply_central_impulse(Vector3(0,5,0)*mass)
+	if input.jumping and isGrounded:
+		self.apply_central_impulse(Vector3(0,5,0)*mass)
 	
 	if input.moveDirection.length() > 0:
 		var maxSpeed : float = maxSprintSpeed if input.sprinting else (maxCrouchSpeed if input.crouching else maxWalkSpeed)
-	
+		
 		var wishSpeed : Vector3 = characterRoot.global_basis *  input.moveDirection*maxSpeed
 		var currentSpeed : Vector3 = Plane(Vector3.UP).project(linear_velocity)
 		var differntSpeed : Vector3 = wishSpeed - currentSpeed
 		var additive : Vector3 = differntSpeed.normalized()*clampf(differntSpeed.length(),0,acceleration*delta)
 		self.apply_central_impulse(additive*mass)
+	elif isGrounded:
+		var currentSpeed : Vector3 = Plane(Vector3.UP).project(linear_velocity)
+		var additive : Vector3 = -currentSpeed.normalized()*deceleration*delta
+		self.apply_central_impulse(additive.normalized() * clamp(additive.length(),0,currentSpeed.length()))

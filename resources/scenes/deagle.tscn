@@ -1,0 +1,114 @@
+[gd_scene load_steps=17 format=3 uid="uid://dhsm0hujkvw5"]
+
+[ext_resource type="Script" uid="uid://d3avp3juvv5ki" path="res://weaponBase.gd" id="1_dwxgg"]
+[ext_resource type="Script" uid="uid://chr4omg2hy3yu" path="res://addons/netfox/rewindable-action.gd" id="2_0y3qh"]
+[ext_resource type="AudioStream" uid="uid://om4kfidni15n" path="res://assets/sounds/deagle/fireDeagle.mp3" id="2_3q3ig"]
+[ext_resource type="AudioStream" uid="uid://bbwgfsxptbb1k" path="res://assets/sounds/deagle/reloadDeagle.mp3" id="3_0y3qh"]
+[ext_resource type="ArrayMesh" uid="uid://cf0olcf601e2f" path="res://assets/models/mesh/Deagle.res" id="4_80wey"]
+[ext_resource type="ArrayMesh" uid="uid://b1sthmlmk0wsv" path="res://assets/models/mesh/MuzzleBack.res" id="5_kjjgu"]
+[ext_resource type="ArrayMesh" uid="uid://bs5xtgov8rcq6" path="res://assets/models/mesh/MuzzleFront.res" id="6_57jux"]
+[ext_resource type="Material" uid="uid://cn6b5jxvasc7i" path="res://assets/materials/player/armsTP.tres" id="9_80wey"]
+
+[sub_resource type="Curve" id="Curve_far2h"]
+_data = [Vector2(0, 0.9790661), 0.0, 0.045416106, 0, 0, Vector2(1, 0), -1.1741434, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_g6fqw"]
+curve = SubResource("Curve_far2h")
+
+[sub_resource type="Curve" id="Curve_ch6bc"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_htt31"]
+curve = SubResource("Curve_ch6bc")
+
+[sub_resource type="Curve" id="Curve_ypn7n"]
+_data = [Vector2(0, 0), 0.0, 3.879458, 0, 0, Vector2(0.99609375, 1), -0.3525728, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_xcrai"]
+curve = SubResource("Curve_ypn7n")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_0ebdu"]
+particle_flag_disable_z = true
+angle_min = -720.0
+angle_max = 720.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.19999999
+scale_max = 0.39999998
+scale_curve = SubResource("CurveTexture_xcrai")
+color = Color(0.97, 0.7519117, 0.28130004, 1)
+alpha_curve = SubResource("CurveTexture_g6fqw")
+emission_curve = SubResource("CurveTexture_htt31")
+hue_variation_min = -0.100000024
+hue_variation_max = -2.2351742e-08
+
+[sub_resource type="SphereMesh" id="SphereMesh_kjjgu"]
+lightmap_size_hint = Vector2i(6, 4)
+material = ExtResource("9_80wey")
+radius = 0.15
+height = 0.3
+
+[node name="Weapon" type="Node3D"]
+script = ExtResource("1_dwxgg")
+
+[node name="FireAction" type="Node" parent="."]
+script = ExtResource("2_0y3qh")
+metadata/_custom_type_script = "uid://chr4omg2hy3yu"
+
+[node name="WeaponAudio" type="Node3D" parent="."]
+
+[node name="FireDeagle" type="AudioStreamPlayer" parent="WeaponAudio"]
+stream = ExtResource("2_3q3ig")
+
+[node name="ReloadDeagle" type="AudioStreamPlayer" parent="WeaponAudio"]
+stream = ExtResource("3_0y3qh")
+
+[node name="Fire" type="AudioStreamPlayer3D" parent="WeaponAudio"]
+stream = ExtResource("2_3q3ig")
+max_distance = 64.0
+
+[node name="Reload" type="AudioStreamPlayer3D" parent="WeaponAudio"]
+stream = ExtResource("3_0y3qh")
+max_distance = 7.5
+
+[node name="WeaponGrip" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, -0.3, -0.45)
+
+[node name="Mesh" type="MeshInstance3D" parent="WeaponGrip"]
+transform = Transform3D(1.125, 0, 0, 0, 1.125, 0, 0, 0, 1.125, 0, 0.10672633, -0.009649336)
+mesh = ExtResource("4_80wey")
+
+[node name="MuzzleParticles" type="GPUParticles3D" parent="WeaponGrip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19521591, -0.38263586)
+emitting = false
+amount = 1
+lifetime = 0.1
+one_shot = true
+fixed_fps = 0
+interpolate = false
+fract_delta = false
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_0ebdu")
+draw_passes = 2
+draw_pass_1 = ExtResource("5_kjjgu")
+draw_pass_2 = ExtResource("6_57jux")
+
+[node name="RHand" type="MeshInstance3D" parent="WeaponGrip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025, 0, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_kjjgu")
+skeleton = NodePath("../../..")
+
+[node name="LHand" type="MeshInstance3D" parent="WeaponGrip"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.025, -0.05, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_kjjgu")
+skeleton = NodePath("../../..")
+
+[node name="LeftArmPos" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.35, -0.35)
+
+[node name="RightArmPos" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, -0.3, -0.35)

@@ -1,0 +1,11 @@
+[plugin]
+
+name="netfox.extras"
+description="Game-specific utilities for Netfox"
+author="Tamas Galffy and contributors"
+<<<<<<< HEAD
+version="1.32.0"
+=======
+version="1.31.2"
+>>>>>>> b36da35 (fix: Transmit state for inputless RollbackSynchronizers)
+script="netfox-extras.gd"

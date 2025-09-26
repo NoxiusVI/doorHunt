@@ -1,0 +1,11 @@
+[plugin]
+
+name="netfox"
+description="Shared internals for netfox addons"
+author="Tamas Galffy and contributors"
+<<<<<<< HEAD
+version="1.32.0"
+=======
+version="1.31.2"
+>>>>>>> b36da35 (fix: Transmit state for inputless RollbackSynchronizers)
+script="netfox.gd"
