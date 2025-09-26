@@ -124,7 +124,7 @@ handShader = ExtResource("9_hrcr2")
 script = ExtResource("2_rsj34")
 root = NodePath("..")
 enable_prediction = true
-state_properties = Array[String]([":physics_state", ":lock_rotation", ":health", "Head/Gun:lastFired", "Head/Gun:lastReloaded"])
+state_properties = Array[String]([":physics_state", ":lock_rotation", ":health", "Head/Gun:lastFired", "Head/Gun:lastReloaded", "Head/Gun:curMag", "Head/Gun:reloaded"])
 input_properties = Array[String](["Input:moveDirection", "Input:lookDirection", "Input:sprinting", "Input:jumping", "Input:crouching", "Input:fire", "Input:reload"])
 metadata/_custom_type_script = "uid://d350u8evihs1u"
 
@@ -181,9 +181,12 @@ skeleton = NodePath("../..")
 [node name="WeaponGrip" type="Node3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, -0.3, -0.55)
 
-[node name="Gun" type="Node3D" parent="Head" node_paths=PackedStringArray("playerRoot", "input", "rbSync")]
+[node name="Gun" type="Node3D" parent="Head" node_paths=PackedStringArray("hudControl", "reloadProgress", "magLabel", "player", "input", "rbSync")]
 script = ExtResource("10_j26un")
-playerRoot = NodePath("../../Root")
+hudControl = NodePath("HUD")
+reloadProgress = NodePath("HUD/ReloadProgress")
+magLabel = NodePath("HUD/MagLabel")
+player = NodePath("../..")
 input = NodePath("../../Input")
 rbSync = NodePath("../../RollbackSynchronizer")
 metadata/_custom_type_script = "uid://di4sriqmrlsf2"
@@ -250,6 +253,7 @@ mesh = SubResource("SphereMesh_eude5")
 skeleton = NodePath("../../../../..")
 
 [node name="HUD" type="Control" parent="Head/Gun"]
+visible = false
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 8
@@ -275,8 +279,9 @@ offset_right = 16.0
 offset_bottom = 16.0
 grow_horizontal = 2
 grow_vertical = 2
-step = 0.1
-value = 100.0
+max_value = 1.0
+step = 0.01
+value = 1.0
 fill_mode = 4
 texture_under = ExtResource("18_6thn5")
 texture_progress = ExtResource("19_ktwl3")

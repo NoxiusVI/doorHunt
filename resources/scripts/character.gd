@@ -29,7 +29,7 @@ var peerId : int = 0
 @export var gunShader : ShaderMaterial
 @export var handShader : ShaderMaterial
 
-var health : float = maxHealth
+@onready var health : float = maxHealth
 
 func takeDamage(damage : float, isNew : bool) -> void:
 	if not is_multiplayer_authority(): return

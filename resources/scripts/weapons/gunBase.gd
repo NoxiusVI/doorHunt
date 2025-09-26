@@ -8,21 +8,26 @@ class_name GunBase3D
 @export var reloadTime : float = 0.75
 @export var magSize : int = 1
 
+@export_group("HUD")
+@export var hudControl : Control
+@export var reloadProgress : TextureProgressBar
+@export var magLabel : Label
+
 @onready var soundHolder : Node3D = $Sounds
 @onready var muzzleFlash : GPUParticles3D = $"WeaponGrip/Animator/Gun/MuzzleParticles"
 @onready var fireAction : RewindableAction = $"FireAction"
 @onready var reloadAction : RewindableAction = $"ReloadAction"
 
 @export_group("OUTSIDE NODES")
-@export var playerRoot : Node3D
+@export var player : NetworkRigidBody3D
 @export var input : PlayerInput 
 @export var rbSync : RollbackSynchronizer
 
 var lastFired : int = -1
 var lastReloaded : int = -1
 
-var curMag : int = magSize
-
+@onready var curMag : int = magSize
+var reloaded : bool = false
 
 var linear : Vector3 = Vector3.ZERO
 var torque : Vector3 = Vector3.ZERO
@@ -40,15 +45,28 @@ var torDamp : float = 20
 # -- BASE FUNCTIONS --
 
 func _ready() -> void:
+	await get_tree().process_frame
+	
 	fireAction.mutate(self)		# Mutate self, so firing code can run
-	fireAction.mutate($"../../")	# Mutate player
-	# Set owner
+	fireAction.mutate(player)	# Mutate player
+	reloadAction.mutate(self)		# Mutate self, so reloading code can run
+	reloadAction.mutate(player)	# Mutate player
+	
+	if player.peerId == multiplayer.get_unique_id(): hudControl.visible = true
+	
 	set_multiplayer_authority(1)
+	fireAction.set_multiplayer_authority(1)
+	reloadAction.set_multiplayer_authority(1)
 	NetworkTime.after_tick_loop.connect(afterLoop)
 
 func _process(delta: float) -> void:
-	var curParentRot : Basis = grip.global_basis * playerRoot.global_basis
-	torque += (lastParentRot * curParentRot.inverse()).get_euler(EULER_ORDER_YXZ) * playerRoot.global_basis * 5
+	if player.peerId == multiplayer.get_unique_id():
+		reloadProgress.value = (NetworkTime.seconds_between(lastReloaded, NetworkRollback.tick)/reloadTime)
+		reloadProgress.visible = reloadProgress.value < 1.0
+		magLabel.text = str(curMag) + "/" + str(magSize)
+	
+	var curParentRot : Basis = grip.global_basis * player.get_node("Root").global_basis
+	torque += (lastParentRot * curParentRot.inverse()).get_euler(EULER_ORDER_YXZ) * player.get_node("Root").global_basis * 5
 	lastParentRot = curParentRot
 	
 	linear += spring(restTransform.origin - animator.position, linear, linStiff, linDamp)*delta
@@ -64,7 +82,11 @@ func spring(displacement : Vector3, velocity : Vector3,stiffness : float, dampin
 
 func _rollback_tick(_dt : float, _tick: int, _if : bool) -> void:
 	if rbSync.is_predicting(): return
-
+	
+	if reloaded and NetworkTime.seconds_between(lastReloaded, NetworkRollback.tick) >= reloadTime:
+		reloaded = false
+		curMag = magSize
+	
 	reloadAction.set_active(input.reload and mayReload())
 	match reloadAction.get_status():
 		RewindableAction.CONFIRMING, RewindableAction.ACTIVE:
@@ -98,7 +120,7 @@ func mayFire() -> bool:
 	return mayAct() and curMag > 0
 	
 func mayReload() -> bool:
-	return mayAct() and curMag < magSize
+	return mayAct() and (curMag < magSize)
 
 # -- DO FUNCTIONS --
 
@@ -109,23 +131,24 @@ func fire() -> void:
 	# See what we've hit
 	var hit : Dictionary = fireRay()
 	if hit.is_empty():
-		# No hit, nothing to do
 		return
 
 	onHit(hit)
 
 func unfire() -> void:
 	curMag += 1
+	print("Whoops! Unfired!")
 	fireAction.erase_context()
 
 func reload() -> void:
 	lastReloaded = NetworkRollback.tick
+	reloaded = true
 	if not reloadAction.has_context():
-		reloadAction.set_context(curMag)
-	await get_tree().create_timer(reloadTime).timeout
-	curMag = magSize
+		reloadAction.set_context([curMag,reloaded])
 
 func unreload() -> void:
+	reloaded = false
+	print("Whoops! Unreloaded!")
 	reloadAction.erase_context()
 
 # -- SHOOTING FUNCTIONS --
