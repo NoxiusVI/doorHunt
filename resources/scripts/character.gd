@@ -31,12 +31,10 @@ var peerId : int = 0
 
 var health : float = maxHealth
 
-func takeDamage(damage : float, isNewHit : bool) -> void:
+func takeDamage(damage : float, isNew : bool) -> void:
 	if not is_multiplayer_authority(): return
-	_NetfoxLogger.new("test", "Test").info("peee pooo")
-	print("STARTING HP IS %s, IS NEW: %s" % [health,isNewHit])
+	print("DEALING DAMAGE (%s), HEALTH BEFORE DAMAGE (%s), ACTION IS NEW = %s" % [damage, health, isNew])
 	health -= damage
-	print("TOOK %s DAMAGE, HP IS NOW %s" % [damage, health])
 
 func _ready() -> void:
 	# Wait a frame so peer_id is set
@@ -49,9 +47,9 @@ func _ready() -> void:
 	
 	if input.is_multiplayer_authority():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		$Head/Weapon/WeaponGrip/Mesh.set("material_override",gunShader)
-		$Head/Weapon/WeaponGrip/RHand.set("material_override",handShader)
-		$Head/Weapon/WeaponGrip/LHand.set("material_override",handShader)
+		$Head/Gun/WeaponGrip/Animator/Gun/Mesh.set("material_override",gunShader)
+		$Head/Gun/WeaponGrip/Animator/LeftHand/Mesh.set("material_override",handShader)
+		$Head/Gun/WeaponGrip/Animator/RightHand/Mesh.set("material_override",handShader)
 		print(peerId)
 		$Head/Camera.make_current()
 	

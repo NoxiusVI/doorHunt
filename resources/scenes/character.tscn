@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://ccufeao1sugpg"]
+[gd_scene load_steps=41 format=3 uid="uid://ccufeao1sugpg"]
 
 [ext_resource type="Script" uid="uid://pbmfnuppxsso" path="res://resources/scripts/character.gd" id="1_twbhq"]
 [ext_resource type="Script" uid="uid://ck4lw0khgrrma" path="res://resources/scripts/input/playerInput.gd" id="2_mv7vq"]
@@ -10,7 +10,17 @@
 [ext_resource type="Material" uid="uid://y2kq1cryodtg" path="res://assets/materials/player/feet.tres" id="7_3dvip"]
 [ext_resource type="Material" uid="uid://icwb21e3god5" path="res://assets/materials/deagle/deagleFP.tres" id="8_3dvip"]
 [ext_resource type="Material" uid="uid://8iire3n4woag" path="res://assets/materials/player/armsFP.tres" id="9_hrcr2"]
-[ext_resource type="PackedScene" uid="uid://dhsm0hujkvw5" path="res://resources/scenes/deagle.tscn" id="11_3dvip"]
+[ext_resource type="Script" uid="uid://di4sriqmrlsf2" path="res://resources/scripts/weapons/gunBase.gd" id="10_j26un"]
+[ext_resource type="Script" uid="uid://chr4omg2hy3yu" path="res://addons/netfox/rewindable-action.gd" id="11_bhqyu"]
+[ext_resource type="AudioStream" uid="uid://om4kfidni15n" path="res://assets/sounds/deagle/fireDeagle.mp3" id="12_n8rey"]
+[ext_resource type="AudioStream" uid="uid://bbwgfsxptbb1k" path="res://assets/sounds/deagle/reloadDeagle.mp3" id="13_cfvew"]
+[ext_resource type="ArrayMesh" uid="uid://cf0olcf601e2f" path="res://assets/models/mesh/Deagle.res" id="14_oovfs"]
+[ext_resource type="ArrayMesh" uid="uid://b1sthmlmk0wsv" path="res://assets/models/mesh/MuzzleBack.res" id="15_8cf4p"]
+[ext_resource type="ArrayMesh" uid="uid://bs5xtgov8rcq6" path="res://assets/models/mesh/MuzzleFront.res" id="16_ku826"]
+[ext_resource type="Material" uid="uid://cn6b5jxvasc7i" path="res://assets/materials/player/armsTP.tres" id="17_6gp2p"]
+[ext_resource type="Texture2D" uid="uid://dhnspx50onj4g" path="res://assets/textures/hud/circularBackground_32x32.png" id="18_6thn5"]
+[ext_resource type="Texture2D" uid="uid://0jwcrmtaepl5" path="res://assets/textures/hud/circularProgress_32x32.png" id="19_ktwl3"]
+[ext_resource type="Texture2D" uid="uid://evblj2ojer2b" path="res://assets/textures/hud/crosshair_32x32.png" id="21_0rg3w"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_157i2"]
 friction = 0.0
@@ -39,6 +49,49 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_mv7vq"]
 material = SubResource("StandardMaterial3D_mv7vq")
 size = Vector3(0.3, 0.1, 0.4)
+
+[sub_resource type="Curve" id="Curve_a75h6"]
+_data = [Vector2(0, 0.9790661), 0.0, 0.045416106, 0, 0, Vector2(1, 0), -1.1741434, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_g6fqw"]
+curve = SubResource("Curve_a75h6")
+
+[sub_resource type="Curve" id="Curve_7ejww"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_htt31"]
+width = 32
+texture_mode = 1
+curve = SubResource("Curve_7ejww")
+
+[sub_resource type="Curve" id="Curve_5rjui"]
+_data = [Vector2(0, 0), 0.0, 3.879458, 0, 0, Vector2(0.99609375, 1), -0.3525728, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_xcrai"]
+curve = SubResource("Curve_5rjui")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_fja88"]
+particle_flag_disable_z = true
+angle_min = -720.0
+angle_max = 720.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.19999999
+scale_max = 0.39999998
+scale_curve = SubResource("CurveTexture_xcrai")
+color = Color(0.97, 0.7519117, 0.28130004, 1)
+alpha_curve = SubResource("CurveTexture_g6fqw")
+emission_curve = SubResource("CurveTexture_htt31")
+hue_variation_min = -0.100000024
+hue_variation_max = -2.2351742e-08
+
+[sub_resource type="SphereMesh" id="SphereMesh_eude5"]
+lightmap_size_hint = Vector2i(6, 4)
+material = ExtResource("17_6gp2p")
+radius = 0.15
+height = 0.3
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mv7vq"]
 radius = 0.3
@@ -71,7 +124,7 @@ handShader = ExtResource("9_hrcr2")
 script = ExtResource("2_rsj34")
 root = NodePath("..")
 enable_prediction = true
-state_properties = Array[String]([":physics_state", ":lock_rotation", ":health"])
+state_properties = Array[String]([":physics_state", ":lock_rotation", ":health", "Head/Gun:lastFired", "Head/Gun:lastReloaded"])
 input_properties = Array[String](["Input:moveDirection", "Input:lookDirection", "Input:sprinting", "Input:jumping", "Input:crouching", "Input:fire", "Input:reload"])
 metadata/_custom_type_script = "uid://d350u8evihs1u"
 
@@ -128,8 +181,135 @@ skeleton = NodePath("../..")
 [node name="WeaponGrip" type="Node3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, -0.3, -0.55)
 
-[node name="Weapon" parent="Head" node_paths=PackedStringArray("rollback_synchronizer") instance=ExtResource("11_3dvip")]
-rollback_synchronizer = NodePath("../../RollbackSynchronizer")
+[node name="Gun" type="Node3D" parent="Head" node_paths=PackedStringArray("playerRoot", "input", "rbSync")]
+script = ExtResource("10_j26un")
+playerRoot = NodePath("../../Root")
+input = NodePath("../../Input")
+rbSync = NodePath("../../RollbackSynchronizer")
+metadata/_custom_type_script = "uid://di4sriqmrlsf2"
+
+[node name="FireAction" type="Node" parent="Head/Gun"]
+script = ExtResource("11_bhqyu")
+metadata/_custom_type_script = "uid://chr4omg2hy3yu"
+
+[node name="ReloadAction" type="Node" parent="Head/Gun"]
+script = ExtResource("11_bhqyu")
+metadata/_custom_type_script = "uid://chr4omg2hy3yu"
+
+[node name="Sounds" type="Node3D" parent="Head/Gun"]
+
+[node name="Fire" type="AudioStreamPlayer3D" parent="Head/Gun/Sounds"]
+stream = ExtResource("12_n8rey")
+max_distance = 64.0
+
+[node name="Reload" type="AudioStreamPlayer3D" parent="Head/Gun/Sounds"]
+stream = ExtResource("13_cfvew")
+max_distance = 7.5
+
+[node name="WeaponGrip" type="Node3D" parent="Head/Gun"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, -0.3, -0.45)
+
+[node name="Animator" type="Node3D" parent="Head/Gun/WeaponGrip"]
+
+[node name="Gun" type="Node3D" parent="Head/Gun/WeaponGrip/Animator"]
+
+[node name="Mesh" type="MeshInstance3D" parent="Head/Gun/WeaponGrip/Animator/Gun"]
+transform = Transform3D(1.125, 0, 0, 0, 1.125, 0, 0, 0, 1.125, 0, 0.10672635, -0.009649336)
+mesh = ExtResource("14_oovfs")
+skeleton = NodePath("../../..")
+
+[node name="MuzzleParticles" type="GPUParticles3D" parent="Head/Gun/WeaponGrip/Animator/Gun"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19521588, -0.3826359)
+emitting = false
+amount = 1
+lifetime = 0.1
+one_shot = true
+fixed_fps = 0
+interpolate = false
+fract_delta = false
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_fja88")
+draw_passes = 2
+draw_pass_1 = ExtResource("15_8cf4p")
+draw_pass_2 = ExtResource("16_ku826")
+
+[node name="LeftHand" type="Node3D" parent="Head/Gun/WeaponGrip/Animator"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.024999991, -0.050000012, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Head/Gun/WeaponGrip/Animator/LeftHand"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_eude5")
+skeleton = NodePath("../../../../..")
+
+[node name="RightHand" type="Node3D" parent="Head/Gun/WeaponGrip/Animator"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025000006, 0, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Head/Gun/WeaponGrip/Animator/RightHand"]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_eude5")
+skeleton = NodePath("../../../../..")
+
+[node name="HUD" type="Control" parent="Head/Gun"]
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ReloadProgress" type="TextureProgressBar" parent="Head/Gun/HUD"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+step = 0.1
+value = 100.0
+fill_mode = 4
+texture_under = ExtResource("18_6thn5")
+texture_progress = ExtResource("19_ktwl3")
+
+[node name="MagLabel" type="Label" parent="Head/Gun/HUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -27.5
+offset_top = 32.0
+offset_right = 27.5
+offset_bottom = 58.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("5_157i2")
+theme_override_font_sizes/font_size = 32
+text = "1/1"
+
+[node name="TextureRect" type="TextureRect" parent="Head/Gun/HUD"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("21_0rg3w")
 
 [node name="Collider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.775, 0)

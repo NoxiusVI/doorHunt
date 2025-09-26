@@ -1,6 +1,6 @@
-[gd_scene load_steps=17 format=3 uid="uid://dhsm0hujkvw5"]
+[gd_scene load_steps=21 format=3 uid="uid://dhsm0hujkvw5"]
 
-[ext_resource type="Script" uid="uid://d3avp3juvv5ki" path="res://weaponBase.gd" id="1_dwxgg"]
+[ext_resource type="Script" uid="uid://di4sriqmrlsf2" path="res://resources/scripts/weapons/gunBase.gd" id="1_0y3qh"]
 [ext_resource type="Script" uid="uid://chr4omg2hy3yu" path="res://addons/netfox/rewindable-action.gd" id="2_0y3qh"]
 [ext_resource type="AudioStream" uid="uid://om4kfidni15n" path="res://assets/sounds/deagle/fireDeagle.mp3" id="2_3q3ig"]
 [ext_resource type="AudioStream" uid="uid://bbwgfsxptbb1k" path="res://assets/sounds/deagle/reloadDeagle.mp3" id="3_0y3qh"]
@@ -8,6 +8,10 @@
 [ext_resource type="ArrayMesh" uid="uid://b1sthmlmk0wsv" path="res://assets/models/mesh/MuzzleBack.res" id="5_kjjgu"]
 [ext_resource type="ArrayMesh" uid="uid://bs5xtgov8rcq6" path="res://assets/models/mesh/MuzzleFront.res" id="6_57jux"]
 [ext_resource type="Material" uid="uid://cn6b5jxvasc7i" path="res://assets/materials/player/armsTP.tres" id="9_80wey"]
+[ext_resource type="Texture2D" uid="uid://dhnspx50onj4g" path="res://assets/textures/hud/circularBackground_32x32.png" id="9_far2h"]
+[ext_resource type="Texture2D" uid="uid://0jwcrmtaepl5" path="res://assets/textures/hud/circularProgress_32x32.png" id="9_kjjgu"]
+[ext_resource type="FontFile" uid="uid://cj6jrm0g02aoj" path="res://assets/fonts/whitrabt.ttf" id="10_kjjgu"]
+[ext_resource type="Texture2D" uid="uid://evblj2ojer2b" path="res://assets/textures/hud/crosshair_32x32.png" id="12_far2h"]
 
 [sub_resource type="Curve" id="Curve_far2h"]
 _data = [Vector2(0, 0.9790661), 0.0, 0.045416106, 0, 0, Vector2(1, 0), -1.1741434, 0.0, 0, 0]
@@ -51,19 +55,20 @@ radius = 0.15
 height = 0.3
 
 [node name="Weapon" type="Node3D"]
-script = ExtResource("1_dwxgg")
+script = ExtResource("1_0y3qh")
+damage = null
+firerate = null
+reloadTime = null
+magSize = null
+max_distance = null
+collision_mask = null
+exclude = null
 
 [node name="FireAction" type="Node" parent="."]
 script = ExtResource("2_0y3qh")
 metadata/_custom_type_script = "uid://chr4omg2hy3yu"
 
 [node name="WeaponAudio" type="Node3D" parent="."]
-
-[node name="FireDeagle" type="AudioStreamPlayer" parent="WeaponAudio"]
-stream = ExtResource("2_3q3ig")
-
-[node name="ReloadDeagle" type="AudioStreamPlayer" parent="WeaponAudio"]
-stream = ExtResource("3_0y3qh")
 
 [node name="Fire" type="AudioStreamPlayer3D" parent="WeaponAudio"]
 stream = ExtResource("2_3q3ig")
@@ -112,3 +117,65 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.35, -0.35)
 
 [node name="RightArmPos" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, -0.3, -0.35)
+
+[node name="HUD" type="Control" parent="."]
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ReloadProgress" type="TextureProgressBar" parent="HUD"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+step = 0.1
+value = 100.0
+fill_mode = 4
+texture_under = ExtResource("9_far2h")
+texture_progress = ExtResource("9_kjjgu")
+
+[node name="MagLabel" type="Label" parent="HUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -27.5
+offset_top = 32.0
+offset_right = 27.5
+offset_bottom = 58.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("10_kjjgu")
+theme_override_font_sizes/font_size = 32
+text = "1/1"
+
+[node name="TextureRect" type="TextureRect" parent="HUD"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("12_far2h")
