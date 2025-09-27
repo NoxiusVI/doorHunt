@@ -102,11 +102,12 @@ weapon_reload={
 
 [netfox]
 
-extras/auto_tile_windows=false
-time/tickrate=30
-rollback/tickrate=30
+extras/auto_tile_windows=true
+time/tickrate=32
+rollback/tickrate=32
 rollback/history_limit=64
 rollback/physics_ticks_per_second=64
+extras/borderless=true
 
 [physics]
 

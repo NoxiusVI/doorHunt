@@ -56,13 +56,6 @@ height = 0.3
 
 [node name="Weapon" type="Node3D"]
 script = ExtResource("1_0y3qh")
-damage = null
-firerate = null
-reloadTime = null
-magSize = null
-max_distance = null
-collision_mask = null
-exclude = null
 
 [node name="FireAction" type="Node" parent="."]
 script = ExtResource("2_0y3qh")

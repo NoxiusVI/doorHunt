@@ -13,8 +13,13 @@ class_name GunBase3D
 @export var reloadProgress : TextureProgressBar
 @export var magLabel : Label
 
+@export_group("TRACER")
+@export var tracerLifetime : float = 0.1
+@export var tracerPrefab : PackedScene
+
 @onready var soundHolder : Node3D = $Sounds
-@onready var muzzleFlash : GPUParticles3D = $"WeaponGrip/Animator/Gun/MuzzleParticles"
+@onready var muzzlePoint : Node3D = $"WeaponGrip/Animator/Gun/MuzzlePoint"
+@onready var muzzleFlash : GPUParticles3D = $"WeaponGrip/Animator/Gun/MuzzlePoint/Particles"
 @onready var fireAction : RewindableAction = $"FireAction"
 @onready var reloadAction : RewindableAction = $"ReloadAction"
 
@@ -52,7 +57,7 @@ func _ready() -> void:
 	reloadAction.mutate(self)		# Mutate self, so reloading code can run
 	reloadAction.mutate(player)	# Mutate player
 	
-	if player.peerId == multiplayer.get_unique_id(): hudControl.visible = true
+	hudControl.visible = player.peerId == multiplayer.get_unique_id()
 	
 	set_multiplayer_authority(1)
 	fireAction.set_multiplayer_authority(1)
@@ -127,13 +132,29 @@ func mayReload() -> bool:
 func fire() -> void:
 	lastFired = NetworkRollback.tick
 	curMag -= 1
-
+	
+	var isNew : bool = false
+	if not fireAction.has_context():
+		fireAction.set_context(true)
+		isNew = true
+	
+	var thisTracer : Node3D
+	
+	if isNew:
+		thisTracer = tracerPrefab.instantiate()
+		thisTracer.startPosition = muzzlePoint.global_position
+		thisTracer.lifetime = tracerLifetime
+		get_tree().current_scene.add_child(thisTracer)
+	
 	# See what we've hit
 	var hit : Dictionary = fireRay()
 	if hit.is_empty():
+		if thisTracer: thisTracer.endPosition = global_transform.origin - global_transform.basis.z * 1024
 		return
+	else:
+		if thisTracer: thisTracer.endPosition = hit.position
 
-	onHit(hit)
+	onHit(hit,isNew)
 
 func unfire() -> void:
 	curMag += 1
@@ -164,12 +185,7 @@ func fireRay() -> Dictionary:
 
 	return space.intersect_ray(query)
 
-func onHit(result : Dictionary) -> void:
-	var isNew : bool = false
-	if not fireAction.has_context():
-		fireAction.set_context(true)
-		isNew = true
-	
+func onHit(result : Dictionary, isNew : bool) -> void:
 	if result.collider.has_method("takeDamage"):
 		result.collider.takeDamage(damage, isNew)
 		NetworkRollback.mutate(result.collider)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://ccufeao1sugpg"]
+[gd_scene load_steps=45 format=3 uid="uid://ccufeao1sugpg"]
 
 [ext_resource type="Script" uid="uid://pbmfnuppxsso" path="res://resources/scripts/character.gd" id="1_twbhq"]
 [ext_resource type="Script" uid="uid://ck4lw0khgrrma" path="res://resources/scripts/input/playerInput.gd" id="2_mv7vq"]
@@ -8,10 +8,12 @@
 [ext_resource type="Material" uid="uid://ddt6wwly7sqas" path="res://assets/materials/player/head.tres" id="5_v1bw7"]
 [ext_resource type="Material" uid="uid://cyynkd20l51nw" path="res://assets/materials/player/body.tres" id="6_htke2"]
 [ext_resource type="Material" uid="uid://y2kq1cryodtg" path="res://assets/materials/player/feet.tres" id="7_3dvip"]
+[ext_resource type="AudioStream" uid="uid://cdjv42t7o4aef" path="res://assets/sounds/player/hit.mp3" id="7_bhqyu"]
 [ext_resource type="Material" uid="uid://icwb21e3god5" path="res://assets/materials/deagle/deagleFP.tres" id="8_3dvip"]
 [ext_resource type="Material" uid="uid://8iire3n4woag" path="res://assets/materials/player/armsFP.tres" id="9_hrcr2"]
 [ext_resource type="Script" uid="uid://di4sriqmrlsf2" path="res://resources/scripts/weapons/gunBase.gd" id="10_j26un"]
 [ext_resource type="Script" uid="uid://chr4omg2hy3yu" path="res://addons/netfox/rewindable-action.gd" id="11_bhqyu"]
+[ext_resource type="PackedScene" uid="uid://dww0wmpgskjje" path="res://resources/scenes/tracer.tscn" id="11_oovfs"]
 [ext_resource type="AudioStream" uid="uid://om4kfidni15n" path="res://assets/sounds/deagle/fireDeagle.mp3" id="12_n8rey"]
 [ext_resource type="AudioStream" uid="uid://bbwgfsxptbb1k" path="res://assets/sounds/deagle/reloadDeagle.mp3" id="13_cfvew"]
 [ext_resource type="ArrayMesh" uid="uid://cf0olcf601e2f" path="res://assets/models/mesh/Deagle.res" id="14_oovfs"]
@@ -21,16 +23,13 @@
 [ext_resource type="Texture2D" uid="uid://dhnspx50onj4g" path="res://assets/textures/hud/circularBackground_32x32.png" id="18_6thn5"]
 [ext_resource type="Texture2D" uid="uid://0jwcrmtaepl5" path="res://assets/textures/hud/circularProgress_32x32.png" id="19_ktwl3"]
 [ext_resource type="Texture2D" uid="uid://evblj2ojer2b" path="res://assets/textures/hud/crosshair_32x32.png" id="21_0rg3w"]
+[ext_resource type="Texture2D" uid="uid://cu1mcwkvv6jx6" path="res://assets/textures/hud/healthBackground_800x40.png" id="23_cfvew"]
+[ext_resource type="Texture2D" uid="uid://ds6haskmxhx07" path="res://assets/textures/hud/healthFill_800x40.png" id="24_oovfs"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_157i2"]
 friction = 0.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_xlx53"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_xlx53"]
-material = ExtResource("5_v1bw7")
-radius = 0.25
-height = 0.5
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_157i2"]
 material = ExtResource("6_htke2")
@@ -42,13 +41,6 @@ material = ExtResource("7_3dvip")
 radius = 0.15
 height = 0.15
 is_hemisphere = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mv7vq"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_mv7vq"]
-material = SubResource("StandardMaterial3D_mv7vq")
-size = Vector3(0.3, 0.1, 0.4)
 
 [sub_resource type="Curve" id="Curve_a75h6"]
 _data = [Vector2(0, 0.9790661), 0.0, 0.045416106, 0, 0, Vector2(1, 0), -1.1741434, 0.0, 0, 0]
@@ -93,6 +85,18 @@ material = ExtResource("17_6gp2p")
 radius = 0.15
 height = 0.3
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mv7vq"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mv7vq"]
+material = SubResource("StandardMaterial3D_mv7vq")
+size = Vector3(0.3, 0.1, 0.45)
+
+[sub_resource type="SphereMesh" id="SphereMesh_xlx53"]
+material = ExtResource("5_v1bw7")
+radius = 0.25
+height = 0.5
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mv7vq"]
 radius = 0.3
 height = 1.55
@@ -107,16 +111,16 @@ spacing_top = 3
 [sub_resource type="ViewportTexture" id="ViewportTexture_3dvip"]
 viewport_path = NodePath("Nameplate/NameViewport")
 
-[node name="Character" type="RigidBody3D" node_paths=PackedStringArray("input", "characterRoot", "cameraOrigin", "camera", "groundCast")]
+[node name="Character" type="RigidBody3D" node_paths=PackedStringArray("input", "groundCast", "characterRoot", "cameraOrigin", "camera")]
 physics_material_override = SubResource("PhysicsMaterial_157i2")
 can_sleep = false
 lock_rotation = true
 script = ExtResource("1_twbhq")
 input = NodePath("Input")
+groundCast = NodePath("GroundCast")
 characterRoot = NodePath("Root")
 cameraOrigin = NodePath("Head")
 camera = NodePath("Head/Camera")
-groundCast = NodePath("GroundCast")
 gunShader = ExtResource("8_3dvip")
 handShader = ExtResource("9_hrcr2")
 
@@ -134,7 +138,6 @@ replication_config = SubResource("SceneReplicationConfig_xlx53")
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_mv7vq")
 root = NodePath("..")
-enabled = false
 properties = Array[String]([":global_transform"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
 
@@ -142,16 +145,14 @@ metadata/_custom_type_script = "uid://dour8fehaaugp"
 script = ExtResource("2_mv7vq")
 metadata/_custom_type_script = "uid://ck4lw0khgrrma"
 
+[node name="HitSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("7_bhqyu")
+
 [node name="Root" type="Node3D" parent="."]
 
-[node name="Meshes" type="Node3D" parent="Root"]
+[node name="Body" type="Node3D" parent="Root"]
 
-[node name="HeadMesh" type="MeshInstance3D" parent="Root/Meshes"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
-mesh = SubResource("SphereMesh_xlx53")
-skeleton = NodePath("../../..")
-
-[node name="BodyMesh" type="MeshInstance3D" parent="Root/Meshes"]
+[node name="BodyMesh" type="MeshInstance3D" parent="Root/Body"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.525, 0)
 mesh = SubResource("CapsuleMesh_157i2")
 skeleton = NodePath("../../..")
@@ -173,11 +174,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 
 [node name="Camera" type="Camera3D" parent="Head"]
 
-[node name="Goggles" type="MeshInstance3D" parent="Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.1)
-mesh = SubResource("BoxMesh_mv7vq")
-skeleton = NodePath("../..")
-
 [node name="WeaponGrip" type="Node3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.175, -0.3, -0.55)
 
@@ -186,6 +182,7 @@ script = ExtResource("10_j26un")
 hudControl = NodePath("HUD")
 reloadProgress = NodePath("HUD/ReloadProgress")
 magLabel = NodePath("HUD/MagLabel")
+tracerPrefab = ExtResource("11_oovfs")
 player = NodePath("../..")
 input = NodePath("../../Input")
 rbSync = NodePath("../../RollbackSynchronizer")
@@ -221,8 +218,10 @@ transform = Transform3D(1.125, 0, 0, 0, 1.125, 0, 0, 0, 1.125, 0, 0.10672635, -0
 mesh = ExtResource("14_oovfs")
 skeleton = NodePath("../../..")
 
-[node name="MuzzleParticles" type="GPUParticles3D" parent="Head/Gun/WeaponGrip/Animator/Gun"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19521588, -0.3826359)
+[node name="MuzzlePoint" type="Node3D" parent="Head/Gun/WeaponGrip/Animator/Gun"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.195, -0.4)
+
+[node name="Particles" type="GPUParticles3D" parent="Head/Gun/WeaponGrip/Animator/Gun/MuzzlePoint"]
 emitting = false
 amount = 1
 lifetime = 0.1
@@ -253,7 +252,6 @@ mesh = SubResource("SphereMesh_eude5")
 skeleton = NodePath("../../../../..")
 
 [node name="HUD" type="Control" parent="Head/Gun"]
-visible = false
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 8
@@ -316,6 +314,15 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("21_0rg3w")
 
+[node name="Goggles" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.05)
+mesh = SubResource("BoxMesh_mv7vq")
+skeleton = NodePath("../..")
+
+[node name="HeadMesh" type="MeshInstance3D" parent="Head"]
+mesh = SubResource("SphereMesh_xlx53")
+skeleton = NodePath("../..")
+
 [node name="Collider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.775, 0)
 shape = SubResource("CapsuleShape3D_mv7vq")
@@ -368,11 +375,18 @@ texture = SubResource("ViewportTexture_3dvip")
 
 [node name="NameViewport" type="SubViewport" parent="Nameplate"]
 transparent_bg = true
+canvas_item_default_texture_filter = 0
 size = Vector2i(800, 80)
 
 [node name="NameLabel" type="RichTextLabel" parent="Nameplate/NameViewport"]
-offset_right = 840.0
+texture_filter = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_right = 420.0
 offset_bottom = 80.0
+grow_horizontal = 2
 theme_override_fonts/normal_font = SubResource("FontVariation_xlx53")
 theme_override_font_sizes/normal_font_size = 56
 bbcode_enabled = true
@@ -381,3 +395,22 @@ fit_content = true
 autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="HealthBar" type="TextureProgressBar" parent="Nameplate/NameViewport"]
+texture_filter = 1
+custom_minimum_size = Vector2(600, 10)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -11.0
+offset_right = 300.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 0
+step = 0.0
+value = 100.0
+texture_under = ExtResource("23_cfvew")
+texture_progress = ExtResource("24_oovfs")

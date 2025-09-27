@@ -16,7 +16,7 @@ var yaw : float = 0
 var pitch : float = 0
 
 var confidence: float = 1.0
-@onready var rbSync : RollbackSynchronizer = $"../RollbackSynchronizer"
+@export var rbSync : RollbackSynchronizer
 
 func _ready() -> void:
 	super()

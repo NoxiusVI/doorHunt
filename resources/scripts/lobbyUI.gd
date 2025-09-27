@@ -30,8 +30,10 @@ func _on_toggle_lobbies_pressed() -> void:
 
 
 func _on_host_pressed() -> void:
-	steamLobby.createLobby()
+	$"../../Network/ConnectionHandler".onHost()
+	#steamLobby.createLobby()
 
 
 func _on_leave_pressed() -> void:
-	steamLobby.joinLobby(1)
+	$"../../Network/ConnectionHandler".onJoin(1)
+	#steamLobby.leaveLobby()

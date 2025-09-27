@@ -36,18 +36,18 @@ func _physics_process(_delta: float) -> void:
 
 func createLobby() -> void:
 	if lobbyId != 0: return # Make sure we aren't in a lobby already.
-	lobbyId = 1
-	connectionHandler.onHost()
-	#print("STEAM LOBBY: Attempting to create a lobby.")
-	#Steam.createLobby(Steam.LOBBY_TYPE_PUBLIC, maxMembers)
+	#lobbyId = 1
+	#connectionHandler.onHost()
+	print("STEAM LOBBY: Attempting to create a lobby.")
+	Steam.createLobby(Steam.LOBBY_TYPE_PUBLIC, maxMembers)
 
 func joinLobby(thisLobbyId : int) -> void:
 	if lobbyId != 0: return # Make sure we aren't in a lobby already.
-	lobbyId = 1
-	connectionHandler.onJoin(0)
-	#print("STEAM LOBBY: Attempting to join a lobby, LobbyID: %s" % thisLobbyId)
-	#lobbyMembers.clear()
-	#Steam.joinLobby(thisLobbyId)
+	#lobbyId = 1
+	#connectionHandler.onJoin(0)
+	print("STEAM LOBBY: Attempting to join a lobby, LobbyID: %s" % thisLobbyId)
+	lobbyMembers.clear()
+	Steam.joinLobby(thisLobbyId)
 
 func leaveLobby() -> void:
 	# If in a lobby, leave it

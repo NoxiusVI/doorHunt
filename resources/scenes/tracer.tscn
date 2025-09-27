@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://dww0wmpgskjje"]
+
+[ext_resource type="Script" uid="uid://bb5vqxkeqavpm" path="res://resources/scripts/tracer.gd" id="1_6xy54"]
+
+[sub_resource type="Gradient" id="Gradient_kjw48"]
+offsets = PackedFloat32Array(0, 0.9958678, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.21960784, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_41exd"]
+gradient = SubResource("Gradient_kjw48")
+fill_from = Vector2(1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_84088"]
+transparency = 1
+cull_mode = 2
+albedo_color = Color(1, 0.5833334, 0, 1)
+albedo_texture = SubResource("GradientTexture2D_41exd")
+emission_enabled = true
+emission = Color(1, 0.5833334, 0, 1)
+billboard_keep_scale = true
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_anunm"]
+material = SubResource("StandardMaterial3D_84088")
+size = 0.1
+sections = 2
+section_length = 0.05
+
+[node name="Tracer" type="Node3D"]
+transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_6xy54")
+
+[node name="Origin" type="Node3D" parent="."]
+
+[node name="Mesh" type="MeshInstance3D" parent="Origin"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, -0.05)
+mesh = SubResource("RibbonTrailMesh_anunm")
